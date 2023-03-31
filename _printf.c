@@ -1,36 +1,59 @@
-#include <stdio.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include "main.h"
-
-int _printf(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    int count = 0;
-
-    while (*format != '\0') {
-        if (*format == '%') {
-            format++;
-            if (*format == 'c') {
-                char c = va_arg(args, int);
-                fwrite(&c, sizeof(char), 1, stdout);
-                count++;
-            } else if (*format == 's') {
-                char *s = va_arg(args, char *);
-                fwrite(s, sizeof(char), strlen(s), stdout);
-                count += strlen(s);
-            } else if (*format == '%') {
-                fwrite("%", sizeof(char), 1, stdout);
-                count++;
-            }
-        } else {
-            fwrite(format, sizeof(char), 1, stdout);
-            count++;
-        }
-        format++;
-    }
-
-    va_end(args);
-
-    return count;
+/**
+ * _printf - produces output according to a format
+ * @format: character string containing zero or more directives
+ *
+ * Return: the number of characters printed
+ * (excluding the null byte used to end output to strings)
+ */
+int _printf(const char *format, ...)
+{
+va_list args;
+int num_printed = 0;
+const char *p = format;
+va_start(args, format);
+while (*p != '\0')
+{
+if (*p == '%')
+{
+p++;
+if (*p == 'c')
+{
+char c = (char) va_arg(args, int);
+write(1, &c, 1);
+num_printed++;
+}
+else if (*p == 's')
+{
+char *s = va_arg(args, char *);
+while (*s != '\0')
+{
+write(1, s, 1);
+s++;
+num_printed++;
+}
+}
+else if (*p == '%')
+{
+write(1, "%", 1);
+num_printed++;
+}
+else
+{
+write(1, "%", 1);
+write(1, p, 1);
+num_printed += 2;
+}
+}
+else
+{
+write(1, p, 1);
+num_printed++;
+}
+p++;
+}
+va_end(args);
+return (num_printed);
 }
